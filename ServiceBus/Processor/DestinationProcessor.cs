@@ -1,5 +1,5 @@
+using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using CloudNative.CloudEvents;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +13,7 @@ public class DestinationProcessor(
 {
     private readonly ServiceBusClient serviceBusClient = clientFactory.CreateClient("Client");
     private ServiceBusProcessor? queueProcessor;
-    private long sensorActivatedCounter = 0;
+    private long chocolateDeliveredCounter = 0;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -35,16 +35,16 @@ public class DestinationProcessor(
         var receivedCloudEvent = arg.Message.ToCloudEvent();
         var handlerTask = receivedCloudEvent.Type switch
         {
-            "Processor.SensorActivated" => HandleSensorActivated(receivedCloudEvent, arg.CancellationToken),
+            "Processor.SwissChocolateDelivered" => HandleSwissChocolateDelivered(receivedCloudEvent, arg.CancellationToken),
             _ => Task.CompletedTask
         };
         await handlerTask;
     }
 
-    Task HandleSensorActivated(CloudEvent message, CancellationToken cancellationToken)
+    Task HandleSwissChocolateDelivered(CloudEvent message, CancellationToken cancellationToken)
     {
-        var sensorActivated = Interlocked.Increment(ref sensorActivatedCounter);
-        logger.OrderAccepted(sensorActivated <= serviceBusOptions.Value.NumberOfCommands ? LogLevel.Information : LogLevel.Warning, sensorActivated);
+        var chocolateDelivered = Interlocked.Increment(ref chocolateDeliveredCounter);
+        logger.SwissChocolateDelivered(chocolateDelivered <= serviceBusOptions.Value.NumberOfCommands ? LogLevel.Information : LogLevel.Warning, chocolateDelivered);
         return Task.CompletedTask;
     }
 

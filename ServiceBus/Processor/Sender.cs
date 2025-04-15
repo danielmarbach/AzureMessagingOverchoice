@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
+using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using CloudNative.CloudEvents;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +22,7 @@ public class Sender(
         });
 
         var simulationCommands = CreateSimulationCommands();
-        logger.SendWithDuplicates(simulationCommands.Count, simulationCommands.Count - simulationCommands.DistinctBy(c => c.ChannelId, StringComparer.Ordinal).Count());
+        logger.SendWithDuplicates(simulationCommands.Count, simulationCommands.Count - simulationCommands.DistinctBy(c => c.PersonId, StringComparer.Ordinal).Count());
 
         await foreach (var batch in Batches(simulationCommands, commandSender))
         {
@@ -31,14 +31,14 @@ public class Sender(
         }
     }
 
-    private Queue<ActivateSensor> CreateSimulationCommands()
+    private Queue<SendSwissChocolateTo> CreateSimulationCommands()
     {
-        var eventsToSend = new Queue<ActivateSensor>();
+        var eventsToSend = new Queue<SendSwissChocolateTo>();
         for (var i = 0; i < serviceBusOptions.Value.NumberOfCommands; i++)
         {
-            var activateSensor = new ActivateSensor
+            var activateSensor = new SendSwissChocolateTo
             {
-                ChannelId = $"channels/{Guid.NewGuid()}"
+                PersonId = $"person/{Guid.NewGuid()}"
             };
             eventsToSend.Enqueue(activateSensor);
 
@@ -52,7 +52,7 @@ public class Sender(
         return eventsToSend;
     }
 
-    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<ActivateSensor> queueCommands,
+    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<SendSwissChocolateTo> queueCommands,
         ServiceBusSender sender,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -64,16 +64,12 @@ public class Sender(
             currentBatch ??= await sender.CreateMessageBatchAsync(cancellationToken);
 
 
-            var cloudEvent = new CloudEvent
+            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne", typeof(SendSwissChocolateTo).FullName!, command)
             {
-                Type = typeof(ActivateSensor).FullName!,
-                Source = new Uri("/cloudevents/example/sender", UriKind.Relative),
-                Id = command.ChannelId,
-                DataContentType = "application/json",
-                Data = command,
+                Id = command.PersonId,
             };
 
-            if (!currentBatch.TryAddMessage(cloudEvent.ToBinaryMode()))
+            if (!currentBatch.TryAddMessage(cloudEvent.ToServiceBusMessage()))
             {
                 if (currentBatch.Count == 0)
                 {

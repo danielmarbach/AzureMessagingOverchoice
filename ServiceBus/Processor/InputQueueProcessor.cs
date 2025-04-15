@@ -1,7 +1,6 @@
-using System.Text.Json;
 using System.Transactions;
+using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using CloudNative.CloudEvents;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
@@ -57,8 +56,8 @@ public class InputQueueProcessor(
             var receivedCloudEvent = arg.Message.ToCloudEvent();
             var handlerTask = receivedCloudEvent.Type switch
             {
-                "Processor.ActivateSensor" => HandleActivateSensor(receivedCloudEvent, cts.Token),
-                "Processor.SensorActivated" => HandleSensorActivated(receivedCloudEvent, cts.Token),
+                "Processor.SendSwissChocolateTo" => HandleSendSwissChocolateTo(receivedCloudEvent, cts.Token),
+                "Processor.SwissChocolateDelivered" => HandleSwissChocolateDelivered(receivedCloudEvent, cts.Token),
                 _ => Task.CompletedTask
             };
             await handlerTask;
@@ -84,29 +83,24 @@ public class InputQueueProcessor(
         }
     }
 
-    async Task HandleActivateSensor(CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
+    async Task HandleSendSwissChocolateTo(CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
     {
         // will make sure operations will enlist
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        var activateSensor = ((JsonElement)receivedCloudEvent.Data!).Deserialize<ActivateSensor>()!;
-        logger.ActivateSensorReceived(activateSensor.ChannelId);
+        var activateSensor = receivedCloudEvent.Data!.ToObjectFromJson<SendSwissChocolateTo>()!;
+        logger.SendSwissChocolateReceived(activateSensor.PersonId);
 
         try
         {
-            var sensorActivated = new SensorActivated
+            var swissChocolateDelivered = new SwissChocolateDelivered
             {
-                ChannelId = activateSensor.ChannelId
+                PersonId = activateSensor.PersonId
             };
 
-            var cloudEvent = new CloudEvent
-            {
-                Type = typeof(SensorActivated).FullName!,
-                Source = new Uri("/cloudevents/example/sender", UriKind.Relative),
-                DataContentType = "application/json",
-                Data = sensorActivated,
-            };
-            var sensorActivatedMessage = cloudEvent.ToBinaryMode();
+            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne", typeof(SwissChocolateDelivered).FullName!,
+                swissChocolateDelivered);
+            var sensorActivatedMessage = cloudEvent.ToServiceBusMessage();
             sensorActivatedMessage.CorrelationId = receivedCloudEvent.Id;
 
             // the order here doesn't matter because the message will only go out if the rest was successful
@@ -118,14 +112,14 @@ public class InputQueueProcessor(
         }
         catch (OperationCanceledException e)
         {
-            logger.ActivateSensorLockLost(e, activateSensor.ChannelId);
+            logger.SendSwissChocolateLockLost(e, activateSensor.PersonId);
             throw;
         }
     }
 
-    Task HandleSensorActivated(CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
+    Task HandleSwissChocolateDelivered(CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
     {
-        logger.SensorActivatedWithSubject(receivedCloudEvent.Subject);
+        logger.SwissChocolateDeliveredWithSubject(receivedCloudEvent.Subject);
         return Task.CompletedTask;
     }
 

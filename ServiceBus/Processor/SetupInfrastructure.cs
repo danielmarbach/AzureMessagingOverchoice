@@ -56,12 +56,12 @@ public class SetupInfrastructure(
         await administrationClient.CreateRuleAsync(serviceBusOptions.Value.TopicName, destinationSubscriptionName,
             new CreateRuleOptions
             {
-                Name = "SensorActivated",
+                Name = "SwissChocolateDelivered",
                 Filter = new CorrelationRuleFilter
                 {
                     ApplicationProperties =
                     {
-                        { "ce-type", typeof(SensorActivated).FullName }
+                        { "ce-type", typeof(SwissChocolateDelivered).FullName }
                     }
                 }
             }, cancellationToken);
