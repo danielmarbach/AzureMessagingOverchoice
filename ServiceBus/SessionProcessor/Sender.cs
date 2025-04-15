@@ -7,12 +7,10 @@ namespace SessionProcessor;
 
 public class Sender(
     IAzureClientFactory<ServiceBusClient> clientFactory,
-    IOptions<ServiceBusOptions> serviceBusOptions,
-    ILogger<Sender> logger)
+    IOptions<ServiceBusOptions> serviceBusOptions)
     : IHostedService
 {
     private readonly ServiceBusClient serviceBusClient = clientFactory.CreateClient("Client");
-    private readonly ILogger<Sender> logger = logger;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -21,7 +19,7 @@ public class Sender(
             Identifier = $"CommandSender-{serviceBusOptions.Value.InputQueue}"
         });
 
-        foreach (var channel in serviceBusOptions.Value.Channels)
+        foreach (var channel in serviceBusOptions.Value.ChocolateStorage)
         {
             var simulationCommands = CreateSimulationCommands();
             await foreach (var batch in Batches(channel, simulationCommands, commandSender, cancellationToken))
@@ -32,13 +30,13 @@ public class Sender(
         }
     }
 
-    private Queue<ProcessTemperatureChange> CreateSimulationCommands()
+    private Queue<StorageTemperatureChanged> CreateSimulationCommands()
     {
-        var eventsToSend = new Queue<ProcessTemperatureChange>();
+        var eventsToSend = new Queue<StorageTemperatureChanged>();
         var yesterday = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(2));
-        for (var i = 0; i < serviceBusOptions.Value.NumberOfCommandsPerChannel; i++)
+        for (var i = 0; i < serviceBusOptions.Value.NumberOfDataPointsPerChocolateStorage; i++)
         {
-            var processTemperatureChange = new ProcessTemperatureChange
+            var processTemperatureChange = new StorageTemperatureChanged
             {
                 Published = yesterday.Add(TimeSpan.FromSeconds(i)),
                 Current = Random.Shared.Next(20, 30) + Random.Shared.NextDouble()
@@ -49,7 +47,7 @@ public class Sender(
         return eventsToSend;
     }
 
-    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string channel, Queue<ProcessTemperatureChange> queueCommands,
+    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string storage, Queue<StorageTemperatureChanged> queueCommands,
         ServiceBusSender sender, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var currentBatch = default(ServiceBusMessageBatch);
@@ -64,9 +62,9 @@ public class Sender(
                     ContentType = "application/json",
                     ApplicationProperties =
                     {
-                        { "MessageType", typeof(ProcessTemperatureChange).FullName }
+                        { "MessageType", typeof(StorageTemperatureChanged).FullName }
                     },
-                    SessionId = channel
+                    SessionId = storage
                 }))
             {
                 if (currentBatch.Count == 0)
@@ -75,7 +73,7 @@ public class Sender(
                 }
 
                 yield return currentBatch;
-                currentBatch = default;
+                currentBatch = null;
             }
             else
             {

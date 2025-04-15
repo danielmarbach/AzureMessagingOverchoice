@@ -2,7 +2,7 @@ namespace SessionProcessor;
 
 static partial class LoggingExtensions
 {
-    public static void LogTemperature(this ILogger<InputQueueProcessor> logger, int numberOfDataPointsObserved, string channel, ProcessTemperatureChange temperatureChanged, ServiceBusOptions serviceBusOptions)
+    public static void LogTemperature(this ILogger<InputQueueProcessor> logger, int numberOfDataPointsObserved, string channel, StorageTemperatureChanged temperatureChanged, ServiceBusOptions serviceBusOptions)
     {
         if (numberOfDataPointsObserved < serviceBusOptions.NumberOfDataPointsToObserve)
         {
@@ -24,21 +24,21 @@ static partial class LoggingExtensions
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Warning,
-        Message = " - {Channel}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
+        Message = " - {Storage}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
     static partial void BelowThresholdReset(
-        this ILogger<InputQueueProcessor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold);
+        this ILogger<InputQueueProcessor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold);
 
     [LoggerMessage(
         EventId = 4,
         Level = LogLevel.Information,
-        Message = " - {Channel}: {Current} / {Published}")]
+        Message = " - {Storage}: {Current} / {Published}")]
     static partial void BelowThreshold(
-        this ILogger<InputQueueProcessor> logger, string channel, double current, DateTimeOffset published);
+        this ILogger<InputQueueProcessor> logger, string storage, double current, DateTimeOffset published);
 
     [LoggerMessage(
         EventId = 5,
         Level = LogLevel.Error,
-        Message = " - {Channel}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
+        Message = " - {Storage}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
     static partial void AboveThreshold(
-        this ILogger<InputQueueProcessor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
+        this ILogger<InputQueueProcessor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
 }

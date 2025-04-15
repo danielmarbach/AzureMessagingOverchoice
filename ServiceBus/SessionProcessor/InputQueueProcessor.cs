@@ -44,31 +44,31 @@ public class InputQueueProcessor(
         arg.Message.ApplicationProperties.TryGetValue("MessageType", out var messageTypeValue);
         var handlerTask = messageTypeValue switch
         {
-            "SessionProcessor.ProcessTemperatureChange" => HandleProcessTemperatureChange(arg, arg.CancellationToken),
+            "SessionProcessor.StorageTemperatureChanged" => HandleStorageTemperatureChanged(arg, arg.CancellationToken),
             _ => Task.CompletedTask
         };
         await handlerTask;
     }
 
-    record ChannelState
+    record StorageState
     {
         public int PointsObserved { get; set; } = 0;
     }
 
-    async Task HandleProcessTemperatureChange(ProcessSessionMessageEventArgs arg, CancellationToken cancellationToken)
+    async Task HandleStorageTemperatureChanged(ProcessSessionMessageEventArgs arg, CancellationToken cancellationToken)
     {
         var message = arg.Message;
         var channel = arg.SessionId;
-        var processTemperatureChange = message.Body.ToObjectFromJson<ProcessTemperatureChange>();
+        var storageTemperatureChanged = message.Body.ToObjectFromJson<StorageTemperatureChanged>();
 
         var sessionState = await arg.GetSessionStateAsync(cancellationToken);
-        var channelState = sessionState?.ToObjectFromJson<ChannelState>() ?? new ChannelState();
+        var channelState = sessionState?.ToObjectFromJson<StorageState>() ?? new StorageState();
 
         channelState.PointsObserved +=
-            processTemperatureChange.Current > serviceBusOptions.Value.TemperatureThreshold
+            storageTemperatureChanged.Current > serviceBusOptions.Value.TemperatureThreshold
             ? 1 : -channelState.PointsObserved;
 
-        logger.LogTemperature(channelState.PointsObserved, channel, processTemperatureChange, serviceBusOptions.Value);
+        logger.LogTemperature(channelState.PointsObserved, channel, storageTemperatureChanged, serviceBusOptions.Value);
 
         await arg.SetSessionStateAsync(BinaryData.FromObjectAsJson(channelState), cancellationToken);
     }
