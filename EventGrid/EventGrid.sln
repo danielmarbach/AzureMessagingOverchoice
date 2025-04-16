@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushDelivery", "PushDelivery\PushDelivery.csproj", "{61AA1A75-1459-4851-9F98-A77D2A777081}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PullDelivery", "PullDelivery\PullDelivery.csproj", "{10E9A0C7-8205-46C5-B463-6B3CBDB79556}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61AA1A75-1459-4851-9F98-A77D2A777081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61AA1A75-1459-4851-9F98-A77D2A777081}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61AA1A75-1459-4851-9F98-A77D2A777081}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61AA1A75-1459-4851-9F98-A77D2A777081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10E9A0C7-8205-46C5-B463-6B3CBDB79556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10E9A0C7-8205-46C5-B463-6B3CBDB79556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10E9A0C7-8205-46C5-B463-6B3CBDB79556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10E9A0C7-8205-46C5-B463-6B3CBDB79556}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
