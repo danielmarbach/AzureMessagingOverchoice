@@ -1,4 +1,4 @@
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public record EventHubsOptions
 {

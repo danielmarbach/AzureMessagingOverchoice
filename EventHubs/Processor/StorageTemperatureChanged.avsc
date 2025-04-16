@@ -1,7 +1,7 @@
 {
-  "namespace": "ProcessorSchemaDemo",
+  "namespace": "Processor",
   "type": "record",
-  "name": "TemperatureChanged",
+  "name": "StorageTemperatureChanged",
   "fields": [
     {
       "name": "Current",

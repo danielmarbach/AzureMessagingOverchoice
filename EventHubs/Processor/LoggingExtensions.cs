@@ -1,4 +1,4 @@
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 static partial class LoggingExtensions
 {
@@ -23,7 +23,7 @@ static partial class LoggingExtensions
     public static partial void ProcessingError(
         this ILogger<BatchProcessor> logger, Exception exception, string partitionId, string operationDescription);
 
-    public static void LogTemperature(this ILogger<Processor> logger, int numberOfDataPointsObserved, string channel, TemperatureChanged temperatureChanged, ProcessorOptions processorOptions)
+    public static void LogTemperature(this ILogger<Processor> logger, int numberOfDataPointsObserved, string channel, StorageTemperatureChanged temperatureChanged, ProcessorOptions processorOptions)
     {
         if (numberOfDataPointsObserved < processorOptions.NumberOfDataPointsToObserve)
         {
@@ -45,25 +45,25 @@ static partial class LoggingExtensions
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Warning,
-        Message = " - [EventHubs] {Channel}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
+        Message = " - [EventHubs] {Storage}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
     static partial void BelowThresholdReset(
-        this ILogger<Processor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold);
+        this ILogger<Processor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold);
 
     [LoggerMessage(
         EventId = 4,
         Level = LogLevel.Information,
-        Message = " - [EventHubs] {Channel}: {Current} / {Published}")]
+        Message = " - [EventHubs] {Storage}: {Current} / {Published}")]
     static partial void BelowThreshold(
-        this ILogger<Processor> logger, string channel, double current, DateTimeOffset published);
+        this ILogger<Processor> logger, string storage, double current, DateTimeOffset published);
 
     [LoggerMessage(
         EventId = 5,
         Level = LogLevel.Error,
-        Message = " - [EventHubs] {Channel}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
+        Message = " - [EventHubs] {Storage}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
     static partial void AboveThreshold(
-        this ILogger<Processor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
+        this ILogger<Processor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
 
-    public static void LogTemperature(this ILogger<KafkaProcessor> logger, int numberOfDataPointsObserved, string channel, TemperatureChanged temperatureChanged, ProcessorOptions processorOptions)
+    public static void LogTemperature(this ILogger<KafkaProcessor> logger, int numberOfDataPointsObserved, string channel, StorageTemperatureChanged temperatureChanged, ProcessorOptions processorOptions)
     {
         if (numberOfDataPointsObserved < processorOptions.NumberOfDataPointsToObserve)
         {
@@ -85,21 +85,21 @@ static partial class LoggingExtensions
     [LoggerMessage(
         EventId = 6,
         Level = LogLevel.Warning,
-        Message = " - [Kafka] {Channel}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
+        Message = " - [Kafka] {Storage}: {Current} / {Published} (below threshold of '{TemperatureThreshold}', reset)")]
     static partial void BelowThresholdReset(
-        this ILogger<KafkaProcessor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold);
+        this ILogger<KafkaProcessor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold);
 
     [LoggerMessage(
         EventId = 7,
         Level = LogLevel.Information,
-        Message = " - [Kafka] {Channel}: {Current} / {Published}")]
+        Message = " - [Kafka] {Storage}: {Current} / {Published}")]
     static partial void BelowThreshold(
-        this ILogger<KafkaProcessor> logger, string channel, double current, DateTimeOffset published);
+        this ILogger<KafkaProcessor> logger, string storage, double current, DateTimeOffset published);
 
     [LoggerMessage(
         EventId = 8,
         Level = LogLevel.Error,
-        Message = " - [Kafka] {Channel}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
+        Message = " - [Kafka] {Storage}: {Current} / {Published} (above threshold of '{TemperatureThreshold}' for the last '{NumberOfDataPointsObserved}' data points)")]
     static partial void AboveThreshold(
-        this ILogger<KafkaProcessor> logger, string channel, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
+        this ILogger<KafkaProcessor> logger, string storage, double current, DateTimeOffset published, double temperatureThreshold, int numberOfDataPointsObserved);
 }

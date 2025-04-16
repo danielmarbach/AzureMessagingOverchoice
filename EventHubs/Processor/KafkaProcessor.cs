@@ -6,7 +6,7 @@ using Confluent.Kafka;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 using Microsoft.Extensions.Options;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public class KafkaProcessor(
     IOptions<ProcessorOptions> processorOptions,
@@ -59,7 +59,7 @@ public class KafkaProcessor(
             var channel = consumeResult.Message.Key;
             var contentType = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("content-type"));
 
-            var temperatureChanged = await serializer.DeserializeAsync<TemperatureChanged>(
+            var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(
                 new MessageContent { Data = BinaryData.FromBytes(consumeResult.Message.Value), ContentType = contentType },
                 stoppingToken);
 

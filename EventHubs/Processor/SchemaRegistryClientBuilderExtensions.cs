@@ -2,7 +2,7 @@ using Azure.Core.Extensions;
 using Azure.Data.SchemaRegistry;
 using Azure.Identity;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public static class SchemaRegistryClientBuilderExtensions
 {

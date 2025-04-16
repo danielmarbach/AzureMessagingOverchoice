@@ -4,7 +4,7 @@ using Azure.Storage.Blobs;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 using Microsoft.Extensions.Options;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public class Processor(
     IOptions<ProcessorOptions> processorOptions,
@@ -23,7 +23,7 @@ public class Processor(
         {
             foreach (var @event in events)
             {
-                var temperatureChanged = await serializer.DeserializeAsync<TemperatureChanged>(@event, cancellationToken);
+                var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(@event, cancellationToken);
                 var channel = @event.Properties["Channel"].ToString()!;
 
                 var numberOfDataPointsObserved = channelObservations.AddOrUpdate(channel,

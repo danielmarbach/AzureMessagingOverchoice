@@ -3,7 +3,7 @@ using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 using Microsoft.Extensions.Options;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClient eventHubProducerClient, SchemaRegistryAvroSerializer serializer)
     : IHostedService
@@ -15,10 +15,10 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
             return;
         }
 
-        foreach (var channel in senderOptions.Value.Channels)
+        foreach (var storage in senderOptions.Value.Storage)
         {
             await foreach (var batch in StreamBatches(
-                                   await CreateSimulationData(channel, senderOptions.Value.NumberOfDatapointPerChannel, serializer),
+                                   await CreateSimulationData(storage, senderOptions.Value.NumberOfDataPointsPerChocolateStorage, serializer),
                                    eventHubProducerClient)
                                .WithCancellation(cancellationToken))
             {
@@ -33,18 +33,18 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
         return Task.CompletedTask;
     }
 
-    static async ValueTask<Queue<EventData>> CreateSimulationData(string channel, int numberOfDatapointPerChannel, SchemaRegistryAvroSerializer serializer)
+    static async ValueTask<Queue<EventData>> CreateSimulationData(string storage, int numberOfDatapointPerChannel, SchemaRegistryAvroSerializer serializer)
     {
         var eventsToSend = new Queue<EventData>();
         var yesterday = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2));
         for (var i = 0; i < numberOfDatapointPerChannel; i++)
         {
-            var eventData = await serializer.SerializeAsync<EventData, TemperatureChanged>(new TemperatureChanged
+            var eventData = await serializer.SerializeAsync<EventData, StorageTemperatureChanged>(new StorageTemperatureChanged
             {
                 Published = yesterday.Add(TimeSpan.FromSeconds(i)),
                 Current = Random.Shared.Next(20, 30) + Random.Shared.NextDouble()
             });
-            eventData.Properties["Channel"] = channel;
+            eventData.Properties["Storage"] = storage;
             eventsToSend.Enqueue(eventData);
         }
 
@@ -61,7 +61,7 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
 
             currentBatch ??= await producer.CreateBatchAsync(new CreateBatchOptions
             {
-                PartitionKey = eventData.Properties["Channel"].ToString()
+                PartitionKey = eventData.Properties["Storage"].ToString()
             });
 
             if (!currentBatch.TryAdd(eventData))
@@ -72,7 +72,7 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
                 }
 
                 yield return currentBatch;
-                currentBatch = default;
+                currentBatch = null;
             }
             else
             {

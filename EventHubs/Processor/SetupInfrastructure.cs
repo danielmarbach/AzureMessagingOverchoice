@@ -1,7 +1,7 @@
 using Azure;
 using Azure.Storage.Blobs;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public class SetupInfrastructure(BlobContainerClient blobContainerClient, ILogger<SetupInfrastructure> logger)
     : IHostedService

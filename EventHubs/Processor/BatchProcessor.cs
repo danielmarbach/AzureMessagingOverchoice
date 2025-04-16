@@ -2,7 +2,7 @@ using Azure.Identity;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Primitives;
 
-namespace ProcessorSchemaDemo;
+namespace Processor;
 
 public sealed class BatchProcessor(
     CheckpointStore checkpointStore,

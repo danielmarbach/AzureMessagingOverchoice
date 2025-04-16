@@ -4,7 +4,7 @@ using Azure.Storage.Blobs;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
-using ProcessorSchemaDemo;
+using Processor;
 
 Console.WriteLine(Environment.GetEnvironmentVariable("AZURE_TENANT_ID"));
 
@@ -35,7 +35,7 @@ builder.Services.AddSingleton<SchemaRegistryAvroSerializer>(provider => new Sche
 
 builder.Services.AddHostedService<SetupInfrastructure>();
 builder.Services.AddHostedService<Sender>();
-builder.Services.AddHostedService<Processor>();
+builder.Services.AddHostedService<Processor.Processor>();
 //builder.Services.AddHostedService<KafkaProcessor>();
 
 var host = builder.Build();
