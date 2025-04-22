@@ -13,7 +13,6 @@ public class SetupInfrastructure(BlobContainerClient blobContainerClient, ILogge
         {
             try
             {
-                // We need to create the blob container to make sure checkpoints can be written.
                 await blobContainerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
                 exception = null;
             }
