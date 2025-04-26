@@ -1,8 +1,9 @@
 # Event Hubs
 
-Purpose: Big data pipeline
-Type: Event streaming (series)
+Purpose: Big data pipeline, realtime event-processing and data-distribution
+Type: Event streaming (series). The series of event is the information carrier
 When to use: Telemetry and distributed data streaming
+Error handling: Read the log stream again from a certain offset or skip the offset. Tombstone certain records and move them to a dedicated stream.
 
 Azure Event Hubs is a big data streaming platform and event ingestion service. It can receive and process millions of events per second. It facilitates the capture, retention, and replay of telemetry and event stream data. The data can come from many concurrent sources. Event Hubs allows telemetry and event data to be made available to various stream-processing infrastructures and analytics services. It's available either as data streams or bundled event batches. This service provides a single solution that enables rapid data retrieval for real-time processing, and repeated replay of stored raw data. It can capture the streaming data into a file for processing and analysis.
 
@@ -34,3 +35,12 @@ Partitioned consumer model with offset-based checkpointing for parallel processi
 - Large event support (up to 1 MB per event)
 - Availability zones support in supported regions
 - Capture support for real-time archiving and replay scenarios
+
+## Event Hub is not
+
+- A publish/subscribe broker. Partitions are not subscriptions. They are chosen by the producer or the broker on ingress. There is also no server-side filtering. _Azure Service Bus, Azure Event Grid_
+- A queue broker. Read progress over the log is handled by the client and there is no event-level ownership and delivery state handling. _Azure Service Bus or for basic use cases Azure Event Grid Namespaces_
+- A discrete event distribution engine. Event Hubs does not do push deliveries, and delivery failures need to be tracked individually. _Azure Event Grid_
+-  A database or long-term event store. Event Hubs exists to catch, store and provide fast access to event data organized around time axis. As data ages (days, not months), you need better indexing. _Azure Cosmos DB, Azure SQL, Azure Table, Azure Synapse..._
+
+Event streaming is not "modern" and queues are not "traditional". Both are patterns of state-of-the-art messaging infrastructures.

@@ -17,8 +17,9 @@ Purpose: High-value enterprise messaging that enables
 - [Exactly once processing](https://www.cloudcomputingpatterns.org/exactly_once_delivery/)
 - [Transactional outbox](https://docs.microsoft.com/en-us/azure/architecture/best-practices/transactional-outbox-cosmos%20) paired with CosmosDB, table storage...
 - [Sequential convoy](https://docs.microsoft.com/en-us/azure/architecture/patterns/sequential-convoy%20)
-Type: Message, Event distribution (within the enterprise)
+Type: Message, Event distribution (within the enterprise). Single message is the information carrier
 When to use: Order processing and financial transaction
+Error handlling: Individual messages can be individuall processed several time, put on hold or marked as processed
 
 Service Bus is a fully managed enterprise message broker with message queues and publish-subscribe topics. The service is intended for enterprise applications that require transactions, ordering, duplicate detection, and instantaneous consistency. Service Bus enables cloud-native applications to provide reliable state transition management for business processes. When handling high-value messages that can't be lost or duplicated, use Azure Service Bus. This service also facilitates highly secure communication across hybrid cloud solutions and can connect existing on-premises systems to cloud solutions.
 
