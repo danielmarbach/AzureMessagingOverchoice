@@ -8,3 +8,37 @@ Event Grid is deeply integrated with other Azure services and can be integrated 
 
 ## Features
 
+- Elastic Pub/Sub message broker (currently no auto-scaling though)
+- Push style distribution of descrete events to serverless (Push / Push)
+- Pub Sub message distribution services with flexible consumption patterns
+- MQTT (for IoT solutions) and HTTP Protocols
+- Supports push and pull delivery
+- Supports the CloudEvents 1.0 specification
+- Push delivery supports azure services, custom application and external partner systems as destinations
+- Pull delivery for Queues
+- Light broker for the 80% queueing functionality. Will not have JMS, transactionality etc.
+- Will soon support AMQP 1.0 for queues
+
+### Namespaces
+
+### Pull delivery
+
+- Enable HTTP applications to consume messages using pull delivery
+- Flexible consumption
+- High throughput
+- Private link support
+- Control of event states
+
+### Push delivery
+
+- Event Sources
+  - Azure Services
+  - Partner services like SAP
+  - Custom applications
+- Subscriptions
+  - Filtering
+  - Delivery retries. By default, Event Grid expires all events that aren't delivered within 24 hours. You [can customize the retry policy](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry) when creating an event subscription. You provide the maximum number of delivery attempts (default is 30) and the event time-to-live (default is 1440 minutes).  [30=7 in the first hour + 23 with one-per-hour]
+  - Batching. Event Grid defaults to sending each event individually to subscribers. The subscriber receives an array with a single event. You can configure Event Grid to batch events for delivery for improved HTTP performance in high-throughput scenarios.
+  - Dead lettering
+    - Requires a storage account + container
+    - Dead-lettered events are stored as blobs

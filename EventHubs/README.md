@@ -23,6 +23,9 @@ Partitioned consumer model with offset-based checkpointing for parallel processi
 - Capture integration to automatically persist data to Azure Blob Storage or Azure Data Lake
 - Event timestamping, sequence number, and partition key support
 - AMQP and HTTPS protocols, with Kafka-compatible endpoints (native support for Kafka clients)
+  - 100% Kafka compatible up to 3.5 with Kafka Streams and Transactions in Preview
+  - Kafka Compression GA
+  - Schema Registry JSON Schema Formats GA, Protobuf in Preview
 - Client SDKs in multiple languages (C#, Java, Python, JavaScript, Go, etc.)
 - Built-in support for streaming platforms like Apache Spark, Azure Stream Analytics, and Azure Functions
 - Time-retention configuration (from minutes up to 7 days; up to 90 days on Dedicated tier)
