@@ -59,7 +59,7 @@ public class InputQueueProcessor(
     {
         var message = arg.Message;
         var channel = arg.SessionId;
-        var storageTemperatureChanged = message.Body.ToObjectFromJson<StorageTemperatureChanged>();
+        var storageTemperatureChanged = message.Body.ToObjectFromJson<StorageTemperatureChanged>()!;
 
         var sessionState = await arg.GetSessionStateAsync(cancellationToken);
         var channelState = sessionState?.ToObjectFromJson<StorageState>() ?? new StorageState();

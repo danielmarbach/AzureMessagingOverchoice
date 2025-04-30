@@ -1,18 +1,16 @@
 using System.Transactions;
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
 namespace Processor;
 
 public class InputQueueProcessor(
-    IAzureClientFactory<ServiceBusClient> clientFactory,
+    [FromKeyedServices("TransactionalClient")] ServiceBusClient serviceBusClient,
     IOptions<ServiceBusOptions> serviceBusOptions,
     ILogger<InputQueueProcessor> logger)
     : IHostedService, IAsyncDisposable
 {
-    private readonly ServiceBusClient serviceBusClient = clientFactory.CreateClient("TransactionalClient");
     private ServiceBusProcessor? queueProcessor;
     private ServiceBusSender? publisher;
 

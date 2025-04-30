@@ -34,5 +34,5 @@ static partial class LoggingExtensions
         Level = LogLevel.Information,
         Message = "SwissChocolateDelivered received with label {Subject}.")]
     public static partial void SwissChocolateDeliveredWithSubject(
-        this ILogger logger, string subject);
+        this ILogger logger, string? subject);
 }

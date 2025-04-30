@@ -1,19 +1,16 @@
 using System.Runtime.CompilerServices;
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
 namespace Processor;
 
 public class Sender(
-    IAzureClientFactory<ServiceBusClient> clientFactory,
+    [FromKeyedServices("Client")] ServiceBusClient serviceBusClient,
     IOptions<ServiceBusOptions> serviceBusOptions,
     ILogger<Sender> logger)
     : IHostedService
 {
-    private readonly ServiceBusClient serviceBusClient = clientFactory.CreateClient("Client");
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await using var commandSender = serviceBusClient.CreateSender(serviceBusOptions.Value.InputQueue, new ServiceBusSenderOptions
@@ -24,7 +21,7 @@ public class Sender(
         var simulationCommands = CreateSimulationCommands();
         logger.SendWithDuplicates(simulationCommands.Count, simulationCommands.Count - simulationCommands.DistinctBy(c => c.PersonId, StringComparer.Ordinal).Count());
 
-        await foreach (var batch in Batches(simulationCommands, commandSender))
+        await foreach (var batch in Batches(simulationCommands, commandSender, cancellationToken))
         {
             using var batchToSend = batch;
             await commandSender.SendMessagesAsync(batchToSend, cancellationToken);
