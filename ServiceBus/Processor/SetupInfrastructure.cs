@@ -10,10 +10,12 @@ public class SetupInfrastructure(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        #region Not relevant
         if (await administrationClient.QueueExistsAsync(serviceBusOptions.Value.InputQueue, cancellationToken))
         {
             await administrationClient.DeleteQueueAsync(serviceBusOptions.Value.InputQueue, cancellationToken);
         }
+        #endregion
 
         await administrationClient.CreateQueueAsync(new CreateQueueOptions(serviceBusOptions.Value.InputQueue)
         {
@@ -22,6 +24,7 @@ public class SetupInfrastructure(
             DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(1)
         }, cancellationToken);
 
+        #region Not relevant
         if (await administrationClient.QueueExistsAsync(serviceBusOptions.Value.DestinationQueue, cancellationToken))
         {
             await administrationClient.DeleteQueueAsync(serviceBusOptions.Value.DestinationQueue, cancellationToken);
@@ -33,16 +36,19 @@ public class SetupInfrastructure(
         {
             await administrationClient.DeleteQueueAsync(serviceBusOptions.Value.TopicName, cancellationToken);
         }
+        #endregion
 
         await administrationClient.CreateTopicAsync(new CreateTopicOptions(serviceBusOptions.Value.TopicName),
             cancellationToken);
 
         var destinationSubscriptionName = $"{serviceBusOptions.Value.DestinationQueue}Subscription";
+        #region Not relevant
         if (await administrationClient.SubscriptionExistsAsync(serviceBusOptions.Value.TopicName,
                 destinationSubscriptionName, cancellationToken))
         {
             await administrationClient.DeleteSubscriptionAsync(serviceBusOptions.Value.TopicName, destinationSubscriptionName, cancellationToken);
         }
+        #endregion
 
         await administrationClient.CreateSubscriptionAsync(
             new CreateSubscriptionOptions(serviceBusOptions.Value.TopicName, destinationSubscriptionName)
@@ -67,6 +73,7 @@ public class SetupInfrastructure(
             }, cancellationToken);
 
         var inputQueueSubscriptionName = $"{serviceBusOptions.Value.InputQueue}Subscription";
+        #region Not relevant
         if (await administrationClient.SubscriptionExistsAsync(serviceBusOptions.Value.TopicName,
                 inputQueueSubscriptionName, cancellationToken))
         {
@@ -81,7 +88,7 @@ public class SetupInfrastructure(
 
         await administrationClient.DeleteRuleAsync(serviceBusOptions.Value.TopicName, inputQueueSubscriptionName,
             "$Default", cancellationToken);
-
+        #endregion
         await administrationClient.CreateRuleAsync(serviceBusOptions.Value.TopicName, inputQueueSubscriptionName,
             new CreateRuleOptions
             {
@@ -91,8 +98,10 @@ public class SetupInfrastructure(
             }, cancellationToken);
     }
 
+    #region Not relevant
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
+    #endregion
 }

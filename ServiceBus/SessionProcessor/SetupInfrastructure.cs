@@ -10,10 +10,12 @@ public class SetupInfrastructure(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        #region Not relevant
         if (await administrationClient.QueueExistsAsync(serviceBusOptions.Value.InputQueue, cancellationToken))
         {
             await administrationClient.DeleteQueueAsync(serviceBusOptions.Value.InputQueue, cancellationToken);
         }
+        #endregion
 
         await administrationClient.CreateQueueAsync(new CreateQueueOptions(serviceBusOptions.Value.InputQueue)
         {
@@ -21,9 +23,10 @@ public class SetupInfrastructure(
             RequiresSession = true,
         }, cancellationToken);
     }
-
+    #region Not relevant
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
+    #endregion
 }
