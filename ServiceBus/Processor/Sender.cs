@@ -49,7 +49,7 @@ public class Sender(
         return eventsToSend;
     }
 
-    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<SendSwissChocolateTo> queueCommands,
+    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<SendSwissChocolateTo> queueCommands,
         ServiceBusSender sender,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -60,8 +60,10 @@ public class Sender(
 
             currentBatch ??= await sender.CreateMessageBatchAsync(cancellationToken);
 
-
-            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne", typeof(SendSwissChocolateTo).FullName!, command)
+            var cloudEvent = new CloudEvent(
+                "https://swisschoco.delivery/factory/lucerne",
+                typeof(SendSwissChocolateTo).FullName!,
+                command)
             {
                 Id = command.PersonId,
             };
@@ -88,8 +90,10 @@ public class Sender(
         }
     }
 
+    #region Not relevant
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
+    #endregion
 }
