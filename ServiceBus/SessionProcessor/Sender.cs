@@ -44,7 +44,7 @@ public class Sender(
         return eventsToSend;
     }
 
-    static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string storage, Queue<StorageTemperatureChanged> queueCommands,
+    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string storage, Queue<StorageTemperatureChanged> queueCommands,
         ServiceBusSender sender, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var currentBatch = default(ServiceBusMessageBatch);
@@ -84,8 +84,10 @@ public class Sender(
         }
     }
 
+    #region Not relevant
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
+    #endregion
 }
