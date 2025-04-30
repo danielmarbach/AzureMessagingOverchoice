@@ -38,6 +38,7 @@ Partitioned consumer model with offset-based checkpointing for parallel processi
 - Large event support (up to 1 MB per event)
 - Availability zones support in supported regions
 - Capture support for real-time archiving and replay scenarios
+- Standard namespaces support auto-inflation of throughput units while the premium namespaces processing units have to be manually scaled at the moment.
 
 ## Event Hub is not
 
