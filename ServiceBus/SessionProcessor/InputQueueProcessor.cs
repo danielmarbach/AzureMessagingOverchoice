@@ -22,11 +22,17 @@ public class InputQueueProcessor(
             Identifier = $"SessionProcessor-{serviceBusOptions.Value.InputQueue}",
             MaxAutoLockRenewalDuration = TimeSpan.FromSeconds(10),
         });
+
+        #region Not relevant
+
         queueProcessor.ProcessMessageAsync += ProcessMessages;
         queueProcessor.ProcessErrorAsync += ProcessError;
         await queueProcessor.StartProcessingAsync(cancellationToken);
+
+        #endregion
     }
 
+    #region Not relevant
     private Task ProcessError(ProcessErrorEventArgs arg)
     {
         if (arg.Exception is OperationCanceledException)
@@ -36,6 +42,7 @@ public class InputQueueProcessor(
         logger.LogError(arg.Exception, "Error processing message");
         return Task.CompletedTask;
     }
+    #endregion
 
     private async Task ProcessMessages(ProcessSessionMessageEventArgs arg)
     {
@@ -48,9 +55,9 @@ public class InputQueueProcessor(
         await handlerTask;
     }
 
-    record StorageState
+    private record StorageState
     {
-        public int PointsObserved { get; set; } = 0;
+        public int PointsObserved { get; set; }
     }
 
     async Task HandleStorageTemperatureChanged(ProcessSessionMessageEventArgs arg, CancellationToken cancellationToken)
@@ -71,6 +78,8 @@ public class InputQueueProcessor(
         await arg.SetSessionStateAsync(BinaryData.FromObjectAsJson(channelState), cancellationToken);
     }
 
+    #region Not relevant
+
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         if (queueProcessor is not null)
@@ -86,4 +95,6 @@ public class InputQueueProcessor(
             await queueProcessor.DisposeAsync();
         }
     }
+
+    #endregion
 }
