@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
 
@@ -54,15 +55,16 @@ public class Sender(
 
             currentBatch ??= await sender.CreateMessageBatchAsync(cancellationToken);
 
-            if (!currentBatch.TryAddMessage(new ServiceBusMessage(BinaryData.FromObjectAsJson(command))
+            if (!currentBatch.TryAddMessage(new CloudEvent(
+                    "https://swisschoco.delivery/factory/lucerne/storage",
+                    typeof(StorageTemperatureChanged).FullName!,
+                    command)
                 {
-                    ContentType = "application/json",
-                    ApplicationProperties =
+                    ExtensionAttributes =
                     {
-                        { "MessageType", typeof(StorageTemperatureChanged).FullName }
-                    },
-                    SessionId = storage
-                }))
+                        { "storage", storage }
+                    }
+                }.ToServiceBusMessage()))
             {
                 if (currentBatch.Count == 0)
                 {

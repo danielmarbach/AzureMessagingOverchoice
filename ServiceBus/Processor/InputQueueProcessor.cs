@@ -53,6 +53,7 @@ public class InputQueueProcessor(
         try
         {
             arg.MessageLockLostAsync += MessageLockLostHandler;
+
             var receivedCloudEvent = arg.Message.ToCloudEvent();
             var handlerTask = receivedCloudEvent.Type switch
             {

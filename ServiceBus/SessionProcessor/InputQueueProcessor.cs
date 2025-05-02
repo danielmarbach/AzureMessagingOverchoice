@@ -1,3 +1,4 @@
+using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
 
@@ -46,36 +47,75 @@ public class InputQueueProcessor(
 
     private async Task ProcessMessages(ProcessSessionMessageEventArgs arg)
     {
-        arg.Message.ApplicationProperties.TryGetValue("MessageType", out var messageTypeValue);
-        var handlerTask = messageTypeValue switch
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(arg.CancellationToken);
+        try
         {
-            "SessionProcessor.StorageTemperatureChanged" => HandleStorageTemperatureChanged(arg, arg.CancellationToken),
-            _ => Task.CompletedTask
-        };
-        await handlerTask;
+            arg.SessionLockLostAsync += MessageLockLostHandler;
+
+            var receivedCloudEvent = arg.Message.ToCloudEvent();
+            var handlerTask = receivedCloudEvent.Type switch
+            {
+                "SessionProcessor.StorageTemperatureChanged" => HandleStorageTemperatureChanged(new StorageStateProvider(arg), receivedCloudEvent, cts.Token),
+                _ => Task.CompletedTask
+            };
+            await handlerTask;
+        }
+        finally
+        {
+            arg.SessionLockLostAsync -= MessageLockLostHandler;
+        }
+
+        return;
+
+        async Task MessageLockLostHandler(SessionLockLostEventArgs lockLostArgs)
+        {
+            logger.LogInformation(lockLostArgs.Exception, "Lost the lock while processing message. Cancelling the handler");
+            try
+            {
+                await cts.CancelAsync();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignored
+                logger.LogCritical(lockLostArgs.Exception, "Lock lost handler executed but cancellation token source was already disposed.");
+            }
+        }
     }
 
     private record StorageState
     {
+        public required string Id { get; init; }
         public int PointsObserved { get; set; }
     }
 
-    async Task HandleStorageTemperatureChanged(ProcessSessionMessageEventArgs arg, CancellationToken cancellationToken)
+    private sealed class StorageStateProvider(ProcessSessionMessageEventArgs arg)
     {
-        var message = arg.Message;
-        var channel = arg.SessionId;
-        var storageTemperatureChanged = message.Body.ToObjectFromJson<StorageTemperatureChanged>()!;
+        public async Task<StorageState> Load(CancellationToken cancellationToken)
+        {
+            var sessionState = await arg.GetSessionStateAsync(cancellationToken);
+            var storageStage = sessionState?.ToObjectFromJson<StorageState>() ?? new StorageState { Id = arg.SessionId };
+            return storageStage;
+        }
 
-        var sessionState = await arg.GetSessionStateAsync(cancellationToken);
-        var channelState = sessionState?.ToObjectFromJson<StorageState>() ?? new StorageState();
+        public async Task Save(StorageState storageState, CancellationToken cancellationToken)
+        {
+            await arg.SetSessionStateAsync(BinaryData.FromObjectAsJson(storageState), cancellationToken);
+        }
+    }
 
-        channelState.PointsObserved +=
+    async Task HandleStorageTemperatureChanged(StorageStateProvider storageStateProvider, CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
+    {
+        var storageTemperatureChanged = receivedCloudEvent.Data!.ToObjectFromJson<StorageTemperatureChanged>()!;
+
+        var storageState = await storageStateProvider.Load(cancellationToken);
+
+        storageState.PointsObserved +=
             storageTemperatureChanged.Current > serviceBusOptions.Value.TemperatureThreshold
-            ? 1 : -channelState.PointsObserved;
+            ? 1 : -storageState.PointsObserved;
 
-        logger.LogTemperature(channelState.PointsObserved, channel, storageTemperatureChanged, serviceBusOptions.Value);
+        logger.LogTemperature(storageState.PointsObserved, storageState.Id, storageTemperatureChanged, serviceBusOptions.Value);
 
-        await arg.SetSessionStateAsync(BinaryData.FromObjectAsJson(channelState), cancellationToken);
+        await storageStateProvider.Save(storageState, cancellationToken);
     }
 
     #region Not relevant
