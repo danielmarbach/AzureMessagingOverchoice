@@ -90,14 +90,14 @@ public class InputQueueProcessor(
 
     private sealed class StorageStateProvider(ProcessSessionMessageEventArgs arg)
     {
-        public async Task<StorageState> Load(CancellationToken cancellationToken)
+        public async Task<StorageState> Load(CancellationToken cancellationToken = default)
         {
             var sessionState = await arg.GetSessionStateAsync(cancellationToken);
             var storageStage = sessionState?.ToObjectFromJson<StorageState>() ?? new StorageState { Id = arg.SessionId };
             return storageStage;
         }
 
-        public async Task Save(StorageState storageState, CancellationToken cancellationToken)
+        public async Task Save(StorageState storageState, CancellationToken cancellationToken = default)
         {
             await arg.SetSessionStateAsync(BinaryData.FromObjectAsJson(storageState), cancellationToken);
         }
