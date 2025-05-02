@@ -35,6 +35,7 @@ public class InputQueueProcessor(
         await queueProcessor.StartProcessingAsync(cancellationToken);
     }
 
+    #region Not relevant
     private Task ProcessError(ProcessErrorEventArgs arg)
     {
         if (arg.Exception is OperationCanceledException)
@@ -44,6 +45,7 @@ public class InputQueueProcessor(
         logger.LogError(arg.Exception, "Error processing message");
         return Task.CompletedTask;
     }
+    #endregion
 
     private async Task ProcessMessages(ProcessMessageEventArgs arg)
     {
@@ -65,19 +67,20 @@ public class InputQueueProcessor(
             arg.MessageLockLostAsync -= MessageLockLostHandler;
         }
 
-        Task MessageLockLostHandler(MessageLockLostEventArgs lockLostArgs)
+        return;
+
+        async Task MessageLockLostHandler(MessageLockLostEventArgs lockLostArgs)
         {
             logger.LogInformation(lockLostArgs.Exception, "Lost the lock while processing message. Cancelling the handler");
             try
             {
-                cts.Cancel();
+                await cts.CancelAsync();
             }
             catch (ObjectDisposedException)
             {
                 // ignored
                 logger.LogCritical(lockLostArgs.Exception, "Lock lost handler executed but cancellation token source was already disposed.");
             }
-            return Task.CompletedTask;
         }
     }
 
@@ -96,7 +99,8 @@ public class InputQueueProcessor(
                 PersonId = activateSensor.PersonId
             };
 
-            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne", typeof(SwissChocolateDelivered).FullName!,
+            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne",
+                typeof(SwissChocolateDelivered).FullName!,
                 swissChocolateDelivered);
             var sensorActivatedMessage = cloudEvent.ToServiceBusMessage();
             sensorActivatedMessage.CorrelationId = receivedCloudEvent.Id;
@@ -115,6 +119,7 @@ public class InputQueueProcessor(
         }
     }
 
+    #region Not relevant
     Task HandleSwissChocolateDelivered(CloudEvent receivedCloudEvent, CancellationToken cancellationToken)
     {
         logger.SwissChocolateDeliveredWithSubject(receivedCloudEvent.Subject);
@@ -141,4 +146,5 @@ public class InputQueueProcessor(
             await publisher.DisposeAsync();
         }
     }
+    #endregion
 }

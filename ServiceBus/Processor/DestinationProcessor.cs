@@ -1,20 +1,19 @@
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
 namespace Processor;
 
 public class DestinationProcessor(
-    IAzureClientFactory<ServiceBusClient> clientFactory,
+    [FromKeyedServices("Client")] ServiceBusClient serviceBusClient,
     IOptions<ServiceBusOptions> serviceBusOptions,
     ILogger<DestinationProcessor> logger)
     : IHostedService, IAsyncDisposable
 {
-    private readonly ServiceBusClient serviceBusClient = clientFactory.CreateClient("Client");
     private ServiceBusProcessor? queueProcessor;
     private long chocolateDeliveredCounter = 0;
 
+    #region Not relevant
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         queueProcessor = serviceBusClient.CreateProcessor(serviceBusOptions.Value.DestinationQueue, new ServiceBusProcessorOptions
@@ -29,6 +28,7 @@ public class DestinationProcessor(
         queueProcessor.ProcessErrorAsync += ProcessError;
         await queueProcessor.StartProcessingAsync(cancellationToken);
     }
+    #endregion
 
     private async Task ProcessMessages(ProcessMessageEventArgs arg)
     {
@@ -48,6 +48,7 @@ public class DestinationProcessor(
         return Task.CompletedTask;
     }
 
+    #region Not relevant
     private Task ProcessError(ProcessErrorEventArgs arg)
     {
         if (arg.Exception is OperationCanceledException)
@@ -73,4 +74,5 @@ public class DestinationProcessor(
             await queueProcessor.DisposeAsync();
         }
     }
+    #endregion
 }
