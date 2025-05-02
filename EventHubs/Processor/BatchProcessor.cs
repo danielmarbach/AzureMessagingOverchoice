@@ -11,7 +11,7 @@ public sealed class BatchProcessor(
     string fullyQualifiedNamespace,
     string eventHubName,
     ILogger<BatchProcessor> logger,
-    EventProcessorOptions? clientOptions = default)
+    EventProcessorOptions? clientOptions = null)
     : PluggableCheckpointStoreEventProcessor<EventProcessorPartition>(checkpointStore,
         eventBatchMaximumCount,
         consumerGroup,
@@ -48,6 +48,8 @@ public sealed class BatchProcessor(
         }
     }
 
+    #region Not relevant
+
     protected override Task OnProcessingErrorAsync(Exception exception,
         EventProcessorPartition partition,
         string operationDescription,
@@ -56,4 +58,6 @@ public sealed class BatchProcessor(
         logger.ProcessingError(exception, partition.PartitionId, operationDescription);
         return Task.CompletedTask;
     }
+
+    #endregion
 }
