@@ -49,14 +49,14 @@ public class Sender(
         return eventsToSend;
     }
 
-    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<SendSwissChocolateTo> queueCommands,
+    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(Queue<SendSwissChocolateTo> commandsToBatch,
         ServiceBusSender sender,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var currentBatch = default(ServiceBusMessageBatch);
-        while (queueCommands.Count > 0)
+        while (commandsToBatch.Count > 0)
         {
-            var command = queueCommands.Peek();
+            var command = commandsToBatch.Peek();
 
             currentBatch ??= await sender.CreateMessageBatchAsync(cancellationToken);
 
@@ -80,7 +80,7 @@ public class Sender(
             }
             else
             {
-                queueCommands.Dequeue();
+                commandsToBatch.Dequeue();
             }
         }
 

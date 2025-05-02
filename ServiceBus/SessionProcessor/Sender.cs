@@ -45,20 +45,20 @@ public class Sender(
         return eventsToSend;
     }
 
-    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string storage, Queue<StorageTemperatureChanged> queueCommands,
+    private static async IAsyncEnumerable<ServiceBusMessageBatch> Batches(string storage, Queue<StorageTemperatureChanged> eventsToBatch,
         ServiceBusSender sender, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var currentBatch = default(ServiceBusMessageBatch);
-        while (queueCommands.Count > 0)
+        while (eventsToBatch.Count > 0)
         {
-            var command = queueCommands.Peek();
+            var @event = eventsToBatch.Peek();
 
             currentBatch ??= await sender.CreateMessageBatchAsync(cancellationToken);
 
             if (!currentBatch.TryAddMessage(new CloudEvent(
                     "https://swisschoco.delivery/factory/lucerne/storage",
                     typeof(StorageTemperatureChanged).FullName!,
-                    command)
+                    @event)
                 {
                     ExtensionAttributes =
                     {
@@ -76,7 +76,7 @@ public class Sender(
             }
             else
             {
-                queueCommands.Dequeue();
+                eventsToBatch.Dequeue();
             }
         }
 
