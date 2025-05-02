@@ -1,3 +1,4 @@
+using Azure.Messaging;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
@@ -39,13 +40,25 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
         var yesterday = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2));
         for (var i = 0; i < numberOfDatapointPerChannel; i++)
         {
-            var eventData = await serializer.SerializeAsync<EventData, StorageTemperatureChanged>(new StorageTemperatureChanged
+            var temperatureData = await serializer.SerializeAsync(new StorageTemperatureChanged
             {
                 Published = yesterday.Add(TimeSpan.FromSeconds(i)),
                 Current = Random.Shared.Next(20, 30) + Random.Shared.NextDouble()
             });
-            eventData.Properties["Storage"] = storage;
-            eventsToSend.Enqueue(eventData);
+
+            var cloudEvent = new CloudEvent(
+                "https://swisschoco.delivery/factory/lucerne/storage",
+                typeof(StorageTemperatureChanged).FullName!,
+                temperatureData.Data,
+                temperatureData.ContentType?.ToString())
+            {
+                ExtensionAttributes =
+                {
+                    { "storage", storage }
+                }
+            };
+
+            eventsToSend.Enqueue(cloudEvent.ToEventData());
         }
 
         return eventsToSend;
@@ -61,7 +74,7 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
 
             currentBatch ??= await producer.CreateBatchAsync(new CreateBatchOptions
             {
-                PartitionKey = eventData.Properties["Storage"].ToString()
+                PartitionKey = eventData.Properties["storage"].ToString()
             });
 
             if (!currentBatch.TryAdd(eventData))

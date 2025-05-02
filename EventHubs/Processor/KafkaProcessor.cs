@@ -56,19 +56,19 @@ public class KafkaProcessor(
         {
             var consumeResult = consumer!.Consume(stoppingToken);
 
-            var channel = consumeResult.Message.Key;
-            var contentType = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("content-type"));
+            var storage = consumeResult.Message.Key;
+            var cloudEvent = CloudEvent.Parse(BinaryData.FromBytes(consumeResult.Message.Value))!;
 
             var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(
-                new MessageContent { Data = BinaryData.FromBytes(consumeResult.Message.Value), ContentType = contentType },
+                new MessageContent { Data = cloudEvent.Data, ContentType = cloudEvent.DataContentType! },
                 stoppingToken);
 
-            var numberOfDataPointsObserved = channelObservations.AddOrUpdate(channel,
+            var numberOfDataPointsObserved = channelObservations.AddOrUpdate(storage,
                 static (_, _) => 0,
                 static (_, points, options) => options.CurrentTemperature > options.TemperatureThreshold ? points + 1 : 0,
                 (CurrentTemperature: temperatureChanged.Current, TemperatureThreshold: processorOptions.Value.TemperatureThreshold));
 
-            logger.LogTemperature(numberOfDataPointsObserved, channel, temperatureChanged, processorOptions.Value);
+            logger.LogTemperature(numberOfDataPointsObserved, storage, temperatureChanged, processorOptions.Value);
 
             // or manually
             // consumer.Commit(consumeResult);

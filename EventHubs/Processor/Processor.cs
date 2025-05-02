@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Azure;
+using Azure.Messaging;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 using Microsoft.Extensions.Options;
@@ -23,8 +24,13 @@ public class Processor(
         {
             foreach (var @event in events)
             {
-                var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(@event, cancellationToken);
-                var channel = @event.Properties["Channel"].ToString()!;
+                var cloudEvent = @event.ToCloudEvent();
+                var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(new MessageContent
+                {
+                    ContentType = cloudEvent.DataContentType!,
+                    Data = cloudEvent.Data
+                }, cancellationToken);
+                var channel = cloudEvent.ExtensionAttributes["storage"].ToString()!;
 
                 var numberOfDataPointsObserved = channelObservations.AddOrUpdate(channel,
                     static (_, _) => 0,
