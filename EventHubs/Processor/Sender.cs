@@ -29,12 +29,7 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
         }
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    static async ValueTask<Queue<EventData>> CreateSimulationData(string storage, int numberOfDatapointPerChannel, SchemaRegistryAvroSerializer serializer)
+    private static async ValueTask<Queue<EventData>> CreateSimulationData(string storage, int numberOfDatapointPerChannel, SchemaRegistryAvroSerializer serializer)
     {
         var eventsToSend = new Queue<EventData>();
         var yesterday = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2));
@@ -97,5 +92,10 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
         {
             yield return currentBatch;
         }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 }

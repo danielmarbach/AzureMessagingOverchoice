@@ -22,27 +22,28 @@ public class Processor(
         var channelObservations = new ConcurrentDictionary<string, int>();
         batchProcessor.ProcessEventAsync += async events =>
         {
-            foreach (var @event in events)
+            foreach (var cloudEvent in events.ToCloudEvents())
             {
-                var cloudEvent = @event.ToCloudEvent();
-                var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(new MessageContent
-                {
-                    ContentType = cloudEvent.DataContentType!,
-                    Data = cloudEvent.Data
-                }, cancellationToken);
-                var channel = cloudEvent.ExtensionAttributes["storage"].ToString()!;
+                var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(cloudEvent, cancellationToken);
 
-                var numberOfDataPointsObserved = channelObservations.AddOrUpdate(channel,
+                var storage = cloudEvent.ExtensionAttributes["storage"].ToString()!;
+
+                var numberOfDataPointsObserved = channelObservations.AddOrUpdate(storage,
                     static (_, _) => 0,
-                    static (_, points, options) => options.CurrentTemperature > options.TemperatureThreshold ? points + 1 : 0,
+                    static (_,
+                        points,
+                        options) => options.CurrentTemperature > options.TemperatureThreshold
+                        ? points + 1 : 0,
                     (CurrentTemperature: temperatureChanged.Current, TemperatureThreshold: processorOptions.Value.TemperatureThreshold));
 
-                logger.LogTemperature(numberOfDataPointsObserved, channel, temperatureChanged, processorOptions.Value);
+                logger.LogTemperature(numberOfDataPointsObserved, storage, temperatureChanged, processorOptions.Value);
             }
         };
 
         await batchProcessor.StartProcessingAsync(cancellationToken);
     }
+
+    #region Not relevant
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -62,4 +63,6 @@ public class Processor(
             }
         }
     }
+
+    #endregion
 }

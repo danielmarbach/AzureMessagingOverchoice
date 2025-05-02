@@ -6,8 +6,6 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Processor;
 
-Console.WriteLine(Environment.GetEnvironmentVariable("AZURE_TENANT_ID"));
-
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddAzureClients(azureClientBuilder =>
 {
@@ -15,11 +13,16 @@ builder.Services.AddAzureClients(azureClientBuilder =>
     azureClientBuilder.AddEventHubProducerClientWithNamespace(builder.Configuration.GetSection("EventHubs")["FullyQualifiedNamespace"], builder.Configuration.GetSection("EventHubs")["Name"]);
     azureClientBuilder.AddSchemaRegistryClient(builder.Configuration.GetSection("EventHubs")["FullyQualifiedNamespace"]);
 });
+
+#region Not relevant
+
 builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection(nameof(StorageOptions)));
 builder.Services.Configure<SenderOptions>(builder.Configuration.GetSection(nameof(SenderOptions)));
 builder.Services.Configure<ProcessorOptions>(builder.Configuration.GetSection(nameof(ProcessorOptions)));
 builder.Services.Configure<SerializerOptions>(builder.Configuration.GetSection(nameof(SerializerOptions)));
 builder.Services.Configure<EventHubsOptions>(builder.Configuration.GetSection("EventHubs"));
+
+#endregion
 
 builder.Services.AddSingleton<BlobContainerClient>(provider =>
     provider.GetRequiredService<BlobServiceClient>().GetBlobContainerClient(provider.GetRequiredService<IOptions<StorageOptions>>().Value.ContainerName));

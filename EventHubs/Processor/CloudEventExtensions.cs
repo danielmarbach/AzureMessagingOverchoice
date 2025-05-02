@@ -1,5 +1,6 @@
 using Azure.Messaging;
 using Azure.Messaging.EventHubs;
+using Microsoft.Azure.Data.SchemaRegistry.ApacheAvro;
 
 namespace Processor;
 
@@ -19,9 +20,23 @@ public static class CloudEventExtensions
         return eventData;
     }
 
-    public static CloudEvent ToCloudEvent(this EventData message)
+    private static CloudEvent ToCloudEvent(this EventData message)
     {
         var receivedCloudEvent = CloudEvent.Parse(message.EventBody)!;
         return receivedCloudEvent;
+    }
+
+    public static IReadOnlyList<CloudEvent> ToCloudEvents(this IReadOnlyList<EventData> events)
+    {
+        return events.Select(e => e.ToCloudEvent()).ToList();
+    }
+
+    public static ValueTask<TData> DeserializeAsync<TData>(this SchemaRegistryAvroSerializer serializer, CloudEvent cloudEvent, CancellationToken cancellationToken = default)
+    {
+        return serializer.DeserializeAsync<TData>(new MessageContent
+        {
+            ContentType = cloudEvent.DataContentType!,
+            Data = cloudEvent.Data
+        }, cancellationToken);
     }
 }

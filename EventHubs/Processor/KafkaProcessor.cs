@@ -59,13 +59,14 @@ public class KafkaProcessor(
             var storage = consumeResult.Message.Key;
             var cloudEvent = CloudEvent.Parse(BinaryData.FromBytes(consumeResult.Message.Value))!;
 
-            var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(
-                new MessageContent { Data = cloudEvent.Data, ContentType = cloudEvent.DataContentType! },
-                stoppingToken);
+            var temperatureChanged = await serializer.DeserializeAsync<StorageTemperatureChanged>(cloudEvent, stoppingToken);
 
             var numberOfDataPointsObserved = channelObservations.AddOrUpdate(storage,
                 static (_, _) => 0,
-                static (_, points, options) => options.CurrentTemperature > options.TemperatureThreshold ? points + 1 : 0,
+                static (_,
+                    points,
+                    options) => options.CurrentTemperature > options.TemperatureThreshold
+                    ? points + 1 : 0,
                 (CurrentTemperature: temperatureChanged.Current, TemperatureThreshold: processorOptions.Value.TemperatureThreshold));
 
             logger.LogTemperature(numberOfDataPointsObserved, storage, temperatureChanged, processorOptions.Value);
