@@ -90,24 +90,24 @@ public class InputQueueProcessor(
         // will make sure operations will enlist
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        var activateSensor = receivedCloudEvent.Data!.ToObjectFromJson<SendSwissChocolateTo>()!;
-        logger.SendSwissChocolateReceived(activateSensor.PersonId);
+        var sendSwissChocolateTo = receivedCloudEvent.Data!.ToObjectFromJson<SendSwissChocolateTo>()!;
+        logger.SendSwissChocolateReceived(sendSwissChocolateTo.PersonId);
 
         try
         {
             var swissChocolateDelivered = new SwissChocolateDelivered
             {
-                PersonId = activateSensor.PersonId
+                PersonId = sendSwissChocolateTo.PersonId
             };
 
-            var cloudEvent = new CloudEvent("https://swisschoco.delivery/factory/lucerne",
+            var swissChocolateDeliveredMessage = new CloudEvent(
+                "https://swisschoco.delivery/factory/lucerne",
                 typeof(SwissChocolateDelivered).FullName!,
-                swissChocolateDelivered);
-            var sensorActivatedMessage = cloudEvent.ToServiceBusMessage();
-            sensorActivatedMessage.CorrelationId = receivedCloudEvent.Id;
+                swissChocolateDelivered).ToServiceBusMessage();
+            swissChocolateDeliveredMessage.CorrelationId = receivedCloudEvent.Id;
 
             // the order here doesn't matter because the message will only go out if the rest was successful
-            await publisher!.SendMessageAsync(sensorActivatedMessage, cancellationToken);
+            await publisher!.SendMessageAsync(swissChocolateDeliveredMessage, cancellationToken);
 
             await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(1, 15)), cancellationToken);
 
@@ -115,7 +115,7 @@ public class InputQueueProcessor(
         }
         catch (OperationCanceledException e)
         {
-            logger.SendSwissChocolateLockLost(e, activateSensor.PersonId);
+            logger.SendSwissChocolateLockLost(e, sendSwissChocolateTo.PersonId);
             throw;
         }
     }
