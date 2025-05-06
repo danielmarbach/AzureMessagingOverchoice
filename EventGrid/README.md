@@ -73,3 +73,12 @@ Namespaces are ideal when you need:
   - Dead lettering
     - Requires a storage account + container
     - Dead-lettered events are stored as blobs
+
+## Walthrough
+
+### Pull Delivery
+
+- Show the csproj
+- Show the sender and how it only uploads to blobs
+- Show the Program.cs with the client integration
+- Show the receiver
