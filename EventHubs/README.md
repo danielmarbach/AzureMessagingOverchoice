@@ -48,3 +48,42 @@ Partitioned consumer model with offset-based checkpointing for parallel processi
 -  A database or long-term event store. Event Hubs exists to catch, store and provide fast access to event data organized around time axis. As data ages (days, not months), you need better indexing. _Azure Cosmos DB, Azure SQL, Azure Table, Azure Synapse..._
 
 Event streaming is not "modern" and queues are not "traditional". Both are patterns of state-of-the-art messaging infrastructures.
+
+## Walk through
+
+- Start with the Program.cs and explain the various clients and that the storage client is required for the checkpoint storage
+- Explain the Avro Schema Serializer and that currently with Event Hubs there is a built-in schema registry with some simple schema compatibility options. Explain that this space is likely to evolve (see xRegistry)
+- Go into the sender and very quickly show how the batching code is very similar to Azure Service Bus. This time we are setting explicitely the partition key to the storage since we want ordering. Mention briefly that parition keys should land themselves naturally across all the available partitions to avoid hot partitions. If no partition key is assigned they will get round robin assigned to partitions
+- Switch to the processor code and explain the batch processor does the necessary checkpointing. Also partitions are abstracted away automatically. Explain that concurrent dictionary was only used here because of the convenient AddOrUpdate but technically it is not required.
+
+### RBAC
+
+Attention: The permissions here are generous for demo purposes only
+
+1. Create a new Entra ID application `EventHubsRBAC`
+1. Assign the API permission `Microsoft.EventHubs` and `Azure Storage`
+1. Create a Client secret `EventHubsClientSecret` under Certificates & Secrets
+1. Under the event hubs namespace under Access control (IAM)
+  1. Add a role assignment with `Azure Event Hubs Data Owner` and add `EventHubsRBAC` under members 
+  1. Add a role assignment with `Schema Registry Contributor (Preview)` and add `EventHubsRBAC` under members
+1. Under the storage account under Access control (IAM)
+  1. Add a role assignment with `Storage Blob Data Contributor` and add `EventHubsRBAC` under members
+1. Add the event schema to the registry with `ProcessorSchemaDemo.TemperatureChanged`
+1. Configure launchSettings.json accordingly
+
+#### Schema registry
+
+1. Change the event schema to a new version
+1. Start the application
+1. Change it to something incompatible and delete the compatible version
+1. Start again
+
+#### Application Groups
+
+1. Add an application group and allow one message per second incoming
+1. Change application group to allow more messages per second  (or even better remove things again because caching can mess up things)
+
+#### Kafka Consumer
+
+1. Recreate the topicdemo event hubs if you played around with schemas otherwise you run into schema not found problems
+1. Delete the blob storage data and start fresh
