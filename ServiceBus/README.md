@@ -47,6 +47,7 @@ Service Bus is a fully managed enterprise message broker with message queues and
 ### Processor
 
 - Show the processor overview and explain queue, topics, subscriptions and routing / filtering. Also mention the high level description of the service
+- Show the csproj for the package references
 - Switch to SetupInfrastructure and how the moving pieces (explaining ServiceBus has a built-in admin client requiring elevated permissions / manage rights)
   - Explain dedup detection
   - Default rule (1=1)
