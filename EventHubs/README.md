@@ -51,6 +51,7 @@ Event streaming is not "modern" and queues are not "traditional". Both are patte
 
 ## Walk through
 
+- Show the overview images and explain how the data gets assigned to append only streams oldest data on the left and newest data on the right. Explain consumer groups (also possible to demo unique assigments by trying to use the portal to load data while the application is connected)
 - Start with the Program.cs and explain the various clients and that the storage client is required for the checkpoint storage
 - Explain the Avro Schema Serializer and that currently with Event Hubs there is a built-in schema registry with some simple schema compatibility options. Explain that this space is likely to evolve (see xRegistry)
 - Go into the sender and very quickly show how the batching code is very similar to Azure Service Bus. This time we are setting explicitely the partition key to the storage since we want ordering. Mention briefly that parition keys should land themselves naturally across all the available partitions to avoid hot partitions. If no partition key is assigned they will get round robin assigned to partitions
