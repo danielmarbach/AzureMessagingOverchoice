@@ -19,9 +19,40 @@ Event Grid is deeply integrated with other Azure services and can be integrated 
 - Light broker for the 80% queueing functionality. Will not have JMS, transactionality etc.
 - Will soon support AMQP 1.0 for queues
 
+### Basic Tier vs Namespace (Standard Tier)
+
+| Feature | **Standard Tier (Namespace)** | **Basic Tier** |
+|--------|-------------------------------|----------------|
+| **Throughput** | High – up to 40 MB/s ingress and 80 MB/s egress (HTTP); MQTT up to 40 MB/s | Low – up to 5 MB/s ingress and egress |
+| **Event Retention** | Up to 7 days (namespace topics) | 1 day |
+| **Protocols Supported** | HTTP (CloudEvents), MQTT v3.1.1 & v5.0, (AMQP soon) | HTTP only |
+| **MQTT Support** | ✅ Yes | ❌ No |
+| **Pull Delivery (HTTP)** | ✅ Yes | ❌ No |
+| **Push Delivery (HTTP)** | ✅ Yes | ✅ Yes |
+| **Push to Event Hubs** | ✅ Yes | ✅ Yes |
+| **Push to Azure Services** (Functions, Service Bus, Relay, Storage Queues) | ❌ Not yet | ✅ Yes |
+| **Dead Lettering** | ✅ Yes (requires storage account) | ✅ Yes (requires storage account) |
+| **CloudEvents Format Support** | ✅ Yes | ✅ Yes |
+| **Custom Event Topics** | ✅ Yes | ✅ Yes |
+| **Azure System Topics** | ❌ No | ✅ Yes |
+| **Partner Topics** | ❌ No | ✅ Yes |
+| **Domain Scope Subscriptions** | ❌ No | ✅ Yes |
+| **Private Link Support** | ✅ Yes | ❌ No |
+| **Advanced Filtering** | ✅ Yes | Limited |
+| **Use Case Fit** | High-throughput, IoT, flexible consumption models, isolated tenants | Lightweight eventing, Azure-integrated services, lower throughput needs |
+
 ### Namespaces
 
-### Pull delivery
+Namespaces provide advanced capabilities and fine-grained control over event ingestion and delivery, especially suitable for high-throughput and complex eventing scenarios.
+
+Namespaces are ideal when you need:
+
+- Fine-grained delivery and retry control
+- -Event isolation across tenants or applications
+- MQTT support for IoT workloads
+- Pull delivery for queue-based processing
+
+#### Pull delivery
 
 - Enable HTTP applications to consume messages using pull delivery
 - Flexible consumption
@@ -29,7 +60,7 @@ Event Grid is deeply integrated with other Azure services and can be integrated 
 - Private link support
 - Control of event states
 
-### Push delivery
+#### Push delivery
 
 - Event Sources
   - Azure Services
