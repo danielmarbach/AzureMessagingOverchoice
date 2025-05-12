@@ -82,3 +82,29 @@ Namespaces are ideal when you need:
 - Show the sender and how it only uploads to blobs
 - Show the Program.cs with the client integration
 - Show the receiver
+
+### Push Delivery
+
+- Show the csproj
+- Show the Program.cs with the webhook check and the queuing of the cloud event
+- Show the receiver code from the background service
+
+#### Running it
+
+1. Make sure the endpoint is running before deploying! `dotnet run -c Release`
+
+##### NGrok
+
+1. Setup ngrok "tunneling" with `ngrok http --domain=customdomain.ngrok-free.app 8080 --host-header=rewrite` (assuming the solution runs on port 8080 locally, replace `customdomain` with your custom domain)
+1. Modify  `eventgrid-push.bicep`
+  1. Replace the `endpointUrl` value with the custom domain URI
+  1. Remove `deliveryAttributeMappings` in the `EventGridSubscription` since it is not necessary 
+
+##### Dev Tunnels
+
+1. Setup devtunnel with `devtunnel host -p 8080 --allow-anonymous` with anonymous access _or_
+1. Setup devtunnel with `devtunnel host -p 8080` and note down the tunnel id
+1. Create an access token `devtunnel token <tunnelI-d> --scope connect`
+1. Modify  `eventgrid-push.bicep`
+  1. Replace `endpointUrl` value with the dev tunnel URI
+  1. Add your token to the `X-Tunnel-Authorization` value `<token>`
