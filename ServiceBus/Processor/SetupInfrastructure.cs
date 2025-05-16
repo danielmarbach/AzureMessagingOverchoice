@@ -41,7 +41,7 @@ public class SetupInfrastructure(
         await administrationClient.CreateTopicAsync(new CreateTopicOptions(serviceBusOptions.Value.TopicName),
             cancellationToken);
 
-        var destinationSubscriptionName = $"{serviceBusOptions.Value.DestinationQueue}Subscription";
+        var destinationSubscriptionName = $"{serviceBusOptions.Value.DestinationQueue.Replace("/", "-")}-subscription";
         #region Not relevant
         if (await administrationClient.SubscriptionExistsAsync(serviceBusOptions.Value.TopicName,
                 destinationSubscriptionName, cancellationToken))
@@ -72,7 +72,7 @@ public class SetupInfrastructure(
                 }
             }, cancellationToken);
 
-        var inputQueueSubscriptionName = $"{serviceBusOptions.Value.InputQueue}Subscription";
+        var inputQueueSubscriptionName = $"{serviceBusOptions.Value.InputQueue.Replace("/", "")}-subscription";
         #region Not relevant
         if (await administrationClient.SubscriptionExistsAsync(serviceBusOptions.Value.TopicName,
                 inputQueueSubscriptionName, cancellationToken))
