@@ -23,6 +23,9 @@ function wait_for_jobs() {
 queues=$(az servicebus queue list --resource-group "$RESOURCE_GROUP" --namespace-name "$NAMESPACE" --query "[].name" -o tsv)
 
 for queue in $queues; do
+    if [[ "$queue" -eq "rbacqueue" ]]; then
+        continue
+    fi
     wait_for_jobs
     echo "Scheduling deletion of queue: $queue"
     (
