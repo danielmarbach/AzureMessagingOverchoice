@@ -21,6 +21,11 @@ public class KafkaProcessor(
     [MemberNotNull(nameof(consumer))]
     public override Task StartAsync(CancellationToken cancellationToken)
     {
+        if (!processorOptions.Value.UseKafka)
+        {
+            return Task.CompletedTask;
+        }
+
         var config = new ConsumerConfig
         {
             BootstrapServers = $"{eventHubsOptions.Value.FullyQualifiedNamespace}:9093",

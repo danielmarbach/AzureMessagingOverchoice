@@ -39,7 +39,7 @@ builder.Services.AddSingleton<SchemaRegistryAvroSerializer>(provider => new Sche
 builder.Services.AddHostedService<SetupInfrastructure>();
 builder.Services.AddHostedService<Sender>();
 builder.Services.AddHostedService<Processor.Processor>();
-//builder.Services.AddHostedService<KafkaProcessor>();
+builder.Services.AddHostedService<KafkaProcessor>();
 
 var host = builder.Build();
 await host.RunAsync();

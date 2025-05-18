@@ -1,4 +1,4 @@
-param location string = 'UK South'
+param location string = 'North Europe'
 param serviceBusNames array = [
   'ndcosloservicebus1'
 ]

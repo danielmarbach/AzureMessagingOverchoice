@@ -1,8 +1,8 @@
 
-param location string = 'UK South'
-param eventHubNamespaceName string = 'reliablemessagingeventhubsdemo'
-param eventHubName string = 'topicdemo'
-param blobStorageName string = 'reliablecheckpointsdemo'
+param location string = 'North Europe'
+param eventHubNamespaceName string = 'ndcosloeventhub1'
+param eventHubName string = 'temperaturechanged'
+param blobStorageName string = 'ndcosloeventhub1storage'
 
 resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   sku: {

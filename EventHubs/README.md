@@ -69,7 +69,7 @@ Attention: The permissions here are generous for demo purposes only
   1. Add a role assignment with `Schema Registry Contributor (Preview)` and add `EventHubsRBAC` under members
 1. Under the storage account under Access control (IAM)
   1. Add a role assignment with `Storage Blob Data Contributor` and add `EventHubsRBAC` under members
-1. Add the event schema to the registry with `ProcessorSchemaDemo.TemperatureChanged`
+1. Add the event schema to the registry with `Processor.StorageTemperatureChanged`
 1. Configure launchSettings.json accordingly
 
 #### Schema registry
