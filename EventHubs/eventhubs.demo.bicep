@@ -1,5 +1,4 @@
-
-param location string = 'North Europe'
+param location string = resourceGroup().location
 param eventHubNamespaceName string = 'ndcosloeventhub1'
 param eventHubName string = 'temperaturechanged'
 param blobStorageName string = 'ndcosloeventhub1storage'

@@ -1,4 +1,4 @@
-param location string = 'North Europe'
+param location string = resourceGroup().location
 param serviceBusNames array = [
   'ndcosloservicebus1'
 ]

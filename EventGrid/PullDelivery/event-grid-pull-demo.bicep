@@ -1,7 +1,9 @@
 param location string = resourceGroup().location
-param storageAccountName string = 'testreliable'
-param storageAccountSystemTopic string = 'testreliablesystemtopic'
-param eventGridNamespaceName string = 'testreliableeventgridnamespace'
+param storageAccountName string = 'ndcosloeventgridstorage'
+param storageAccountSystemTopic string = 'ndcosloeventgridstoragesystemtopic'
+param eventGridNamespaceName string = 'ndcosloeventgrid'
+param eventGridTopicName string = 'ndcosloeventgridtopic'
+param eventGridTopicSubscriptionName string = 'ndcosloeventgridtopicsubscription'
 
 resource EventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
   name: eventGridNamespaceName
@@ -62,7 +64,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 
 resource EventGridNamespaceTopic 'Microsoft.EventGrid/namespaces/topics@2023-12-15-preview' = {
   parent: EventGridNamespace
-  name: 'testtopic'
+  name: eventGridTopicName
   properties: {
     publisherType: 'Custom'
     inputSchema: 'CloudEventSchemaV1_0'
@@ -84,7 +86,7 @@ resource SystemTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
 
 resource EventGridNamespaceTopicSubscription 'Microsoft.EventGrid/namespaces/topics/eventSubscriptions@2023-12-15-preview' = {
   parent: EventGridNamespaceTopic
-  name: 'testsubscription'
+  name: eventGridTopicSubscriptionName
   properties: {
     deliveryConfiguration: {
       deliveryMode: 'Queue'

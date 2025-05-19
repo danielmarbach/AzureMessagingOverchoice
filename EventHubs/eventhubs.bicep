@@ -1,5 +1,4 @@
-
-param location string = 'UK South'
+param location string = resourceGroup().location
 param eventHubNamespaceName string = 'reliablemessagingeventhubs2'
 param eventHubNames array = [
   'topic1'
