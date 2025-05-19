@@ -1,6 +1,7 @@
 param location string = resourceGroup().location
 param storageAccountName string = 'ndcosloeventgridstorage'
 param storageAccountSystemTopic string = 'ndcosloeventgridstoragesystemtopic'
+param storageAccountSystemTopicSubscription string = 'subscription'
 param eventGridNamespaceName string = 'ndcosloeventgrid'
 param eventGridTopicName string = 'ndcosloeventgridtopic'
 param eventGridTopicSubscriptionName string = 'ndcosloeventgridtopicsubscription'
@@ -120,7 +121,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 
 resource SystemTopicSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2023-12-15-preview' = {
   parent: SystemTopic
-  name: '${SystemTopic.name}Subscription'
+  name: storageAccountSystemTopicSubscription
   properties: {
     deliveryWithResourceIdentity: {
       identity: {
