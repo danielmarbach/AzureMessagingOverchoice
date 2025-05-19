@@ -1,11 +1,11 @@
 
-param location string = 'UK South'
-param namespaceName string = 'ReliableMessagingServiceBus1'
-param queueName string = 'ReliableMessagingServiceBus1Queue1'
-param topicName string = 'ReliableMessagingServiceBus1Topic1'
-param subscriptionName string = 'ReliableMessagingServiceBus1TopicSubscription'
+param location string = resourceGroup().location
+param namespaceName string = 'ndcosloservicebus1prem'
+param queueName string = 'queue'
+param topicName string = 'topic'
+param subscriptionName string = 'subscription'
 // or https://xyz.ngrok-free.app
-param endpointUrl string = 'https://giant-dog-gtqq5wx.devtunnels.ms:8080/api/EventGridEventHandler'
+param endpointUrl string = 'https://tidy-fog-1xpvksk.euw.devtunnels.ms:8080/api/EventGridEventHandler'
 
 resource ServiceBus 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
   name: namespaceName
@@ -45,7 +45,7 @@ resource EventGridSubscription 'Microsoft.EventGrid/systemTopics/eventSubscripti
             name: 'X-Tunnel-Authorization'
             properties: {
               isSecret: true
-              value: 'tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IkZCM0U2NTMwNjlDQ0I5MUFCQUUxRTNFQjk1RDc5NzdERDQxODM1QjYiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJ1a3MxIiwidHVubmVsSWQiOiJnaWFudC1kb2ctZ3RxcTV3eCIsInNjcCI6ImNvbm5lY3QiLCJleHAiOjE3MzgxMDg5NDAsImlzcyI6Imh0dHBzOi8vdHVubmVscy5hcGkudmlzdWFsc3R1ZGlvLmNvbS8iLCJuYmYiOjE3MzgwMjE2NDB9.-YRQ7gFKCZZFfe5WWy0ansFu_HZnX3YavgAioL7FM7AvL35kEUZlcmgxbozYUr0GN6mPyZ8_FsO7gFancAp38Q'
+              value: 'tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IkM3NDYxNEM5OTE0NjUwNzI2REI1RUZBM0M1OTBDQzdGNjJFOUI4QzQiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InRpZHktZm9nLTF4cHZrc2siLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzQ3MTYyOTAyLCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzQ3MDc1NjAyfQ.bp63yHM_2YeJiyDaA9hp268iZcldpVxNmTBn9jI52M8V5INpEvKbUcGPKxy73DGLj3FchK4d2MrrTEoWncxy9Q'
             }
             type: 'Static'
           }

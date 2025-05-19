@@ -1,5 +1,5 @@
-param location string = 'UK South'
-param namespaceName string = 'ReliableMessagingServiceBus1'
+param location string = resourceGroup().location
+param namespaceName string = 'ndcosloservicebus1prem'
 
 resource ServiceBus 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   sku: {

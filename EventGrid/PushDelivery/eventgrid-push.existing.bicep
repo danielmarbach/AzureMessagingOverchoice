@@ -1,9 +1,8 @@
-
-param location string = 'UK South'
-param namespaceName string = 'ReliableMessagingServiceBus1'
-param queueName string = 'ReliableMessagingServiceBus1Queue1'
-param topicName string = 'ReliableMessagingServiceBus1Topic1'
-param subscriptionName string = 'ReliableMessagingServiceBus1TopicSubscription'
+param location string = resourceGroup().location
+param namespaceName string = 'ndcosloservicebus1prem'
+param queueName string = 'queue'
+param topicName string = 'topic'
+param subscriptionName string = 'subscription'
 // or https://xyz.ngrok-free.app
 param endpointUrl string = 'https://giant-dog-gtqq5wx.devtunnels.ms:8080/api/EventGridEventHandler'
 
