@@ -1,5 +1,7 @@
 # Shortcuts
 
+Start Mark and scribble!
+
 Reminder because I tend to forget under pressure.
 
 - Command + F1 (Brightness down) (Extended to Duplicate and back)
