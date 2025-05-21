@@ -13,6 +13,9 @@ public class InputQueueProcessor(
 {
     private ServiceBusProcessor? queueProcessor;
     private ServiceBusSender? publisher;
+    private static readonly TimeSpan LongerThanLockDuration = TimeSpan.FromSeconds(6);
+    private static readonly TimeSpan LongerThanMaxRenewal = TimeSpan.FromSeconds(15);
+    long numberOfMessagesProcessed = 0;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -109,7 +112,8 @@ public class InputQueueProcessor(
             // the order here doesn't matter because the message will only go out if the rest was successful
             await publisher!.SendMessageAsync(swissChocolateDeliveredMessage, cancellationToken);
 
-            await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(1, 15)), cancellationToken);
+            var isTenthMessage = Interlocked.Increment(ref numberOfMessagesProcessed) % 10 == 0;
+            await Task.Delay(isTenthMessage ? LongerThanMaxRenewal : LongerThanLockDuration, cancellationToken);
 
             scope.Complete();
         }
