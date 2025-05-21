@@ -25,9 +25,9 @@ static partial class LoggingExtensions
 
     [LoggerMessage(
         EventId = 3,
-        Message = "#{NumberOfDeliveries} have been delivered.")]
+        Message = "Chocolate to {PersonId} delivered.")]
     public static partial void SwissChocolateDelivered(
-        this ILogger logger, LogLevel logLevel, long numberOfDeliveries);
+        this ILogger logger, LogLevel logLevel, string personId);
 
     [LoggerMessage(
         EventId = 4,

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,7 @@ public class DestinationProcessor(
     : IHostedService, IAsyncDisposable
 {
     private ServiceBusProcessor? queueProcessor;
-    private long chocolateDeliveredCounter = 0;
+    ConcurrentDictionary<string, bool> receivedMessageIds = new();
 
     #region Not relevant
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -43,8 +44,9 @@ public class DestinationProcessor(
 
     Task HandleSwissChocolateDelivered(CloudEvent message, CancellationToken cancellationToken)
     {
-        var chocolateDelivered = Interlocked.Increment(ref chocolateDeliveredCounter);
-        logger.SwissChocolateDelivered(chocolateDelivered <= serviceBusOptions.Value.NumberOfCommands ? LogLevel.Information : LogLevel.Warning, chocolateDelivered);
+        var chocolateDelivered = message.Data!.ToObjectFromJson<SwissChocolateDelivered>()!;
+        var alreadyReceived = receivedMessageIds.AddOrUpdate(chocolateDelivered.PersonId, static _ => false, static (_, _) => true);
+        logger.SwissChocolateDelivered(alreadyReceived ? LogLevel.Warning : LogLevel.Information, chocolateDelivered.PersonId);
         return Task.CompletedTask;
     }
 
