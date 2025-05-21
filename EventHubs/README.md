@@ -49,6 +49,31 @@ Partitioned consumer model with offset-based checkpointing for parallel processi
 
 Event streaming is not "modern" and queues are not "traditional". Both are patterns of state-of-the-art messaging infrastructures.
 
+## Pricing
+
+- Azure Event Hubs Standard (40 MB/sec ingress)
+  - 1TU = min(1000 msg/s, 1MB/s in), min(2000 msg/s, 2MB/s out), 3 cents per hour per throughput unit, 3 cents per hour per 1 million operations
+  - Shared-resource Model
+  - Capacity and consumption-based pricing
+- Azure Event Hubs Premium (120 MB/sec ingress)
+  - 1PU = ~5-10MB/sec throughput, 1,25 USD per hour per premium unit
+  - Isolated-Resource Model
+  - Capacity based pricing. No consumption charges
+- Azure Event Hubs Dedicated, 120MB/sec ingress (>4 GB/sec in prod) 
+  - Capacity unit 6,4 USD per hour per capacity unit, operations included
+  - 8 CU required for AZ
+  - Dedicated-Resource Model
+  - Same as premium but fully isolated cluster
+
+## Performance and Reliability
+
+Event Hubs Premium end-to-end latency < 10ms for most Event Streaming workloads. 
+
+- Throughput: ~5-10 MB/s per 1 PU
+  - Maximum throughput can be achieved by scaling partitions. For both Kafka and AMQP
+- Latency: <10 ms. With 1 MB/s load, 4 PU namespace. For both Kafka and AMQP
+
+
 ## Walk through
 
 - Show the overview images and explain how the data gets assigned to append only streams oldest data on the left and newest data on the right. Explain consumer groups (also possible to demo unique assigments by trying to use the portal to load data while the application is connected)

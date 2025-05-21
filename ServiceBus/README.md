@@ -42,6 +42,21 @@ Service Bus is a fully managed enterprise message broker with message queues and
 - Geo-DR and Availability zones
 - Dedicated Resources with auto-scaling
 
+## Pricing
+
+- Very cheap consumption-based pricing model (Standard), 12 cents per hour, roughly 10 USD a month as a base price with some operations included
+  - Shared-resources model
+- Capacity-based pricing model (Premium), 90 cents per hour, roughly 700 USD a month per messaging unit. No operation based charges
+  - Isolated-resources model
+
+## Performance and reliability
+
+- Service Bus Standard has a soft throttle at about 500 msg/sec per namespace
+  - 1000 credits per second, each send and receive operation counts one credit.
+- Service Bus Premium is only limited by compute and memory (MU) as well at I/O caps
+  - One log (a single queue) can handle about 10 MB/sec data I/O combined (5000 msg/sec @ 1kB)
+  - More features, more CPU and memory use, less throughput. 
+
 ## Walk through
 
 ### Processor
@@ -53,6 +68,7 @@ Service Bus is a fully managed enterprise message broker with message queues and
   - Default rule (1=1)
   - The filter creation
   - In program.cs show the registration
+- Show that in the portal
 - Switch over to the sender code and explain built-in batching capability (also mention 256 KB and large message support)
   - Explain that we are using Cloud Event structured encoding
   - CloudEvent extension to explain how things are mapped to the application properties
