@@ -74,6 +74,11 @@ Namespaces are ideal when you need:
     - Requires a storage account + container
     - Dead-lettered events are stored as blobs
 
+## Pricing
+
+- 4 cents per throughput unit per hour
+- 6 cents per million events (1 Million included)
+
 ## Walthrough
 
 ### Pull Delivery
