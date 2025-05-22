@@ -23,7 +23,9 @@ public class KafkaProcessor(
     {
         if (!processorOptions.Value.UseKafka)
         {
+#pragma warning disable CS8774 // Member must have a non-null value when exiting.
             return Task.CompletedTask;
+#pragma warning restore CS8774 // Member must have a non-null value when exiting.
         }
 
         var config = new ConsumerConfig
