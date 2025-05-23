@@ -50,8 +50,7 @@ public class Sender(IOptions<SenderOptions> senderOptions, EventHubProducerClien
                 ExtensionAttributes =
                 {
                     { "storage", storage }
-                },
-                Id = storage
+                }
             };
 
             eventsToSend.Enqueue(cloudEvent.ToEventData());

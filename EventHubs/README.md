@@ -79,7 +79,7 @@ Event Hubs Premium end-to-end latency < 10ms for most Event Streaming workloads.
 - Start with the Program.cs and explain the various clients and that the storage client is required for the checkpoint storage
 - Explain the Avro Schema Serializer and that currently with Event Hubs there is a built-in schema registry with some simple schema compatibility options. Explain that this space is likely to evolve (see xRegistry)
 - Go into the sender and very quickly show how the batching code is very similar to Azure Service Bus. This time we are setting explicitely the partition key to the storage since we want ordering. Mention briefly that parition keys should land themselves naturally across all the available partitions to avoid hot partitions. If no partition key is assigned they will get round robin assigned to partitions
-- Also explain how we are setting the event ID to the storage in case we would use compaction this would make sure the last event would stick around (currently the topic is set to delete)
+- Also explain how we are setting the partition key to the storage in case we would use compaction this would make sure the last event would stick around (currently the topic is set to delete)
 - Switch to the processor code and explain the batch processor does the necessary checkpointing. Also partitions are abstracted away automatically. Explain that concurrent dictionary was only used here because of the convenient AddOrUpdate but technically it is not required.
 
 ### RBAC
