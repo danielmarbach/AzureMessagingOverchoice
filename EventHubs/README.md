@@ -73,13 +73,13 @@ Event Hubs Premium end-to-end latency < 10ms for most Event Streaming workloads.
   - Maximum throughput can be achieved by scaling partitions. For both Kafka and AMQP
 - Latency: <10 ms. With 1 MB/s load, 4 PU namespace. For both Kafka and AMQP
 
-
 ## Walk through
 
 - Show the overview images and explain how the data gets assigned to append only streams oldest data on the left and newest data on the right. Explain consumer groups (also possible to demo unique assigments by trying to use the portal to load data while the application is connected)
 - Start with the Program.cs and explain the various clients and that the storage client is required for the checkpoint storage
 - Explain the Avro Schema Serializer and that currently with Event Hubs there is a built-in schema registry with some simple schema compatibility options. Explain that this space is likely to evolve (see xRegistry)
 - Go into the sender and very quickly show how the batching code is very similar to Azure Service Bus. This time we are setting explicitely the partition key to the storage since we want ordering. Mention briefly that parition keys should land themselves naturally across all the available partitions to avoid hot partitions. If no partition key is assigned they will get round robin assigned to partitions
+- Also explain how we are setting the event ID to the storage in case we would use compaction this would make sure the last event would stick around (currently the topic is set to delete)
 - Switch to the processor code and explain the batch processor does the necessary checkpointing. Also partitions are abstracted away automatically. Explain that concurrent dictionary was only used here because of the convenient AddOrUpdate but technically it is not required.
 
 ### RBAC
@@ -97,6 +97,11 @@ Attention: The permissions here are generous for demo purposes only
 1. Add the event schema to the registry with `Processor.StorageTemperatureChanged`
 1. Configure launchSettings.json accordingly
 
+#### Kafka Consumer
+
+1. Recreate the topicdemo event hubs if you played around with schemas otherwise you run into schema not found problems
+1. Delete the blob storage data and start fresh
+
 #### Schema registry
 
 1. Change the event schema to a new version
@@ -108,8 +113,3 @@ Attention: The permissions here are generous for demo purposes only
 
 1. Add an application group and allow one message per second incoming
 1. Change application group to allow more messages per second  (or even better remove things again because caching can mess up things)
-
-#### Kafka Consumer
-
-1. Recreate the topicdemo event hubs if you played around with schemas otherwise you run into schema not found problems
-1. Delete the blob storage data and start fresh
