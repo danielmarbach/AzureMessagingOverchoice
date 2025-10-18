@@ -28,7 +28,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
   sku: {
-    name: 'Standard_RAGRS'
+    name: 'Standard_LRS'
   }
   kind: 'StorageV2'
   properties: {
@@ -148,10 +148,14 @@ resource SystemTopicSubscription 'Microsoft.EventGrid/systemTopics/eventSubscrip
       eventTimeToLiveInMinutes: 1440
     }
   }
+  dependsOn: [
+    roleAssignment  // Wait for the role assignment to complete
+  ]  
 }
 
 var eventGridAccessKey = EventGridNamespace.listKeys().key1
 
+#disable-next-line outputs-should-not-contain-secrets
 output eventGridAccessKey string = eventGridAccessKey
 output eventGridName string = EventGridNamespace.name
 output eventGridHostName string = 'https://${EventGridNamespace.properties.topicsConfiguration.hostname}'
